@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSE Study Hub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2><i class="fas fa-graduation-cap"></i> CSE Study Hub</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#subjects" class="nav-link">Subjects</a>
+                <a href="#about" class="nav-link">About</a>
+                <button id="loginBtn" class="auth-btn">Login</button>
+                <button id="logoutBtn" class="auth-btn" style="display: none;">Logout</button>
+                <button id="profileBtn" class="auth-btn" style="display: none;">Profile</button>
+                <button id="adminPanelBtn" class="auth-btn admin-only" style="display: none;">Admin Panel</button>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Content Area -->
+        <div class="content-area" id="contentArea">
+            <!-- Hero Section -->
+            <section id="home" class="hero">
+                <div class="hero-content">
+                    <h1>Welcome to CSE Study Hub</h1>
+                    <p>Your one-stop destination for Computer Science study materials and instant messaging</p>
+                    <button class="cta-btn" onclick="scrollToSection('subjects')">Explore Subjects</button>
+                </div>
+            </section>
+
+            <!-- Subjects Section -->
+            <section id="subjects" class="subjects-section">
+                <div class="container">
+                    <h2 class="section-title">Study Subjects</h2>
+                    <div class="subjects-grid" id="subjectsGrid">
+                        <!-- Subjects will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Subject Details (Hidden by default) -->
+            <section id="subjectDetails" class="subject-details" style="display: none;">
+                <div class="container">
+                    <button class="back-btn" onclick="hideSubjectDetails()">
+                        <i class="fas fa-arrow-left"></i> Back to Subjects
+                    </button>
+                    <div id="subjectContent">
+                        <!-- Subject content will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="about-section">
+                <div class="container">
+                    <h2 class="section-title">About CSE Study Hub</h2>
+                    <div class="about-content">
+                        <p>CSE Study Hub is designed to provide comprehensive study materials for Computer Science Engineering students. Access PDFs, notes, images, and other resources organized by subjects, and connect with administrators through our real-time messaging system.</p>
+                        <div class="features">
+                            <div class="feature">
+                                <i class="fas fa-book"></i>
+                                <h3>Comprehensive Materials</h3>
+                                <p>Access a wide range of study materials including PDFs, notes, and images.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-comments"></i>
+                                <h3>Real-time Chat</h3>
+                                <p>Connect with administrators through our secure messaging system.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-mobile-alt"></i>
+                                <h3>Responsive Design</h3>
+                                <p>Works seamlessly across all devices - desktop, tablet, and mobile.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Chat Button -->
+        <button id="chatToggle" class="chat-toggle" style="display: none;">
+            <i class="fas fa-comments"></i>
+            <span class="notification-badge" id="chatNotification" style="display: none;"></span>
+        </button>
+
+        <!-- Chat Box -->
+        <div id="chatBox" class="chat-box">
+            <div class="chat-header">
+                <h3><i class="fas fa-comments"></i> Chat with Admin</h3>
+                <button id="closeChatBtn" class="close-chat-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="messageInput" placeholder="Type your message..." maxlength="500">
+                <button id="sendMessageBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <p class="auth-switch">Don't have an account? <a href="#" id="showSignup">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="signupUsername">Username:</label>
+                    <input type="text" id="signupUsername" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email:</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password:</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">Sign Up</button>
+                <p class="auth-switch">Already have an account? <a href="#" id="showLogin">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content admin-modal">
+            <div class="admin-header">
+                <h2><i class="fas fa-cogs"></i> Admin Dashboard</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="admin-content">
+                <div class="admin-sidebar">
+                    <div class="admin-tabs">
+                        <button class="tab-btn active" data-tab="dashboard">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </button>
+                        <button class="tab-btn" data-tab="materials">
+                            <i class="fas fa-book"></i> Study Materials
+                        </button>
+                        <button class="tab-btn" data-tab="subjects">
+                            <i class="fas fa-list"></i> Subjects
+                        </button>
+                        <button class="tab-btn" data-tab="chat">
+                            <i class="fas fa-comments"></i> Chat Management
+                        </button>
+                        <button class="tab-btn" data-tab="users">
+                            <i class="fas fa-users"></i> User Management
+                        </button>
+                        <button class="tab-btn" data-tab="settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                    </div>
+                </div>
+                <div class="admin-main">
+                    <!-- Dashboard Tab -->
+                    <div id="dashboardTab" class="tab-content active">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-card-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <h3 id="totalMaterials">0</h3>
+                                <p>Total Materials</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <h3 id="totalSubjects">0</h3>
+                                <p>Total Subjects</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3 id="totalUsers">0</h3>
+                                <p>Registered Users</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <h3 id="activeChats">0</h3>
+                                <p>Active Chats</p>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-chart-bar"></i>
+                                <h3>Recent Activity</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <div id="recentActivity">
+                                    <!-- Recent activity will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Subjects Tab -->
+                    <div id="subjectsTab" class="tab-content">
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-plus"></i>
+                                <h3>Add New Subject</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <form id="addSubjectForm" class="admin-form">
+                                    <div class="form-group">
+                                        <label for="subjectName">Subject Name</label>
+                                        <input type="text" id="subjectName" placeholder="e.g., Data Structures" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="subjectDescription">Description</label>
+                                        <input type="text" id="subjectDescription" placeholder="Brief description of the subject" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="submit-btn">
+                                            <i class="fas fa-plus"></i> Add Subject
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-list"></i>
+                                <h3>Manage Subjects</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <div id="subjectsList">
+                                    <!-- Subjects list will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Materials Tab -->
+                    <div id="materialsTab" class="tab-content">
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-upload"></i>
+                                <h3>Add Study Material</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <form id="addMaterialForm" class="admin-form">
+                                    <div class="form-group">
+                                        <label for="materialSubject">Subject</label>
+                                        <select id="materialSubject" required>
+                                            <option value="">Select Subject</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="materialTitle">Material Title</label>
+                                        <input type="text" id="materialTitle" placeholder="e.g., Binary Trees Tutorial" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="materialUrl">GitHub URL</label>
+                                        <input type="url" id="materialUrl" placeholder="https://raw.githubusercontent.com/..." required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="materialType">Material Type</label>
+                                        <select id="materialType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="pdf">PDF Document</option>
+                                            <option value="image">Image/Diagram</option>
+                                            <option value="note">Text Note</option>
+                                            <option value="video">Video</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="submit-btn">
+                                            <i class="fas fa-upload"></i> Add Material
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-folder"></i>
+                                <h3>Manage Materials</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <div id="materialsList">
+                                    <!-- Materials list will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Tab -->
+                    <div id="chatTab" class="tab-content">
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-comments"></i>
+                                <h3>Active Chat Sessions</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <div id="adminChatList">
+                                    <!-- Active chats will be listed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Users Tab -->
+                    <div id="usersTab" class="tab-content">
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-users"></i>
+                                <h3>User Management</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <div id="usersList">
+                                    <!-- Users list will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Settings Tab -->
+                    <div id="settingsTab" class="tab-content">
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <i class="fas fa-cog"></i>
+                                <h3>Application Settings</h3>
+                            </div>
+                            <div class="admin-section-content">
+                                <div class="admin-form">
+                                    <div class="form-group">
+                                        <label>Website Title</label>
+                                        <input type="text" value="CSE Study Hub" placeholder="Website Title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Maintenance Mode</label>
+                                        <select>
+                                            <option value="false">Disabled</option>
+                                            <option value="true">Enabled</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" class="submit-btn">
+                                            <i class="fas fa-save"></i> Save Settings
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal">
+            <span class="close-modal">&times;</span>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2 id="profileTitle">User Profile</h2>
+            </div>
+            <form id="profileForm" class="profile-form">
+                <div class="form-group">
+                    <label for="profileUsername">Username:</label>
+                    <input type="text" id="profileUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">Email:</label>
+                    <input type="email" id="profileEmail" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="profileBio">Bio (Optional):</label>
+                    <textarea id="profileBio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Update Profile</button>
+            </form>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <h4 id="userJoinDate">0</h4>
+                    <p>Days Since Joined</p>
+                </div>
+                <div class="profile-stat">
+                    <h4 id="userMessagesCount">0</h4>
+                    <p>Messages Sent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
