@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true",
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true"
+      }
+    },
+    "subjects": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "materials": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "chats": {
+      "$chatId": {
+        ".read": "auth != null && ($chatId.contains(auth.uid) || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        ".write": "auth != null && ($chatId.contains(auth.uid) || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        "messages": {
+          "$messageId": {
+            ".validate": "newData.hasChildren(['text', 'senderId', 'timestamp', 'type'])"
+          }
+        }
+      }
+    }
+  }
+}

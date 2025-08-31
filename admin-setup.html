@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Setup - CSE Study Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .setup-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            background: #f8f9ff;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <h1>🔧 Admin Account Setup</h1>
+        <p>This tool will help you create and configure the admin account for CSE Study Hub.</p>
+        
+        <div class="step">
+            <h3>Step 1: Create Admin Account</h3>
+            <p><strong>Email:</strong> alshan.200112456@smuct.ac.bd</p>
+            <p><strong>Password:</strong> HaXon@3211</p>
+            <button onclick="createAdminAccount()">Create Admin Account</button>
+            <div id="step1Result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Set Admin Privileges</h3>
+            <p>After account creation, set admin privileges in the database.</p>
+            <button onclick="setAdminPrivileges()">Set Admin Privileges</button>
+            <div id="step2Result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Verify Admin Access</h3>
+            <p>Test if admin account has proper access.</p>
+            <button onclick="verifyAdminAccess()">Verify Admin Access</button>
+            <div id="step3Result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Manual Setup (Alternative)</h3>
+            <p>If automatic setup doesn't work, follow these manual steps:</p>
+            <ol>
+                <li>Go to <a href="../index.html" target="_blank">main website</a></li>
+                <li>Click "Login" → "Sign up"</li>
+                <li>Enter the admin credentials above</li>
+                <li>Open browser console (F12) and run:</li>
+            </ol>
+            <div class="code">
+const userId = firebase.auth().currentUser.uid;<br>
+firebase.database().ref(`users/${userId}/isAdmin`).set(true);
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>✅ Quick Access</h3>
+            <p>Once setup is complete:</p>
+            <button onclick="window.open('../index.html', '_blank')">Open Main Website</button>
+            <button onclick="window.open('https://console.firebase.google.com/project/study-dd515', '_blank')">Open Firebase Console</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB27Qb1udzGe2nwLu8-55ExFMeJR-TeW48",
+            authDomain: "study-dd515.firebaseapp.com",
+            databaseURL: "https://study-dd515-default-rtdb.firebaseio.com",
+            projectId: "study-dd515",
+            storageBucket: "study-dd515.firebasestorage.app",
+            messagingSenderId: "288649711011",
+            appId: "1:288649711011:web:7213ad3fc5b6abdbed1e16"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Admin credentials
+        const ADMIN_EMAIL = "alshan.200112456@smuct.ac.bd";
+        const ADMIN_PASSWORD = "HaXon@3211";
+
+        async function createAdminAccount() {
+            const resultDiv = document.getElementById('step1Result');
+            resultDiv.innerHTML = "Creating admin account...";
+
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+                const user = userCredential.user;
+
+                // Initialize user data in database
+                await database.ref(`users/${user.uid}`).set({
+                    email: ADMIN_EMAIL,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    isAdmin: true, // Set admin status immediately
+                    role: 'administrator',
+                    setupDate: new Date().toISOString()
+                });
+
+                resultDiv.innerHTML = `<div class="success">✅ Admin account created successfully!<br>User ID: ${user.uid}</div>`;
+                
+                // Auto-proceed to next step
+                setTimeout(() => {
+                    setAdminPrivileges();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error creating admin account:', error);
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    resultDiv.innerHTML = `<div class="error">⚠️ Account already exists. Proceeding to set admin privileges...</div>`;
+                    // Try to login instead
+                    try {
+                        await auth.signInWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+                        resultDiv.innerHTML = `<div class="success">✅ Logged into existing account.</div>`;
+                        setTimeout(() => {
+                            setAdminPrivileges();
+                        }, 2000);
+                    } catch (loginError) {
+                        resultDiv.innerHTML = `<div class="error">❌ Error: ${loginError.message}</div>`;
+                    }
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                }
+            }
+        }
+
+        async function setAdminPrivileges() {
+            const resultDiv = document.getElementById('step2Result');
+            resultDiv.innerHTML = "Setting admin privileges...";
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error("No user logged in. Please create account first.");
+                }
+
+                // Set admin privileges
+                await database.ref(`users/${user.uid}/isAdmin`).set(true);
+                await database.ref(`users/${user.uid}/role`).set('administrator');
+                await database.ref(`users/${user.uid}/adminSetupDate`).set(new Date().toISOString());
+
+                resultDiv.innerHTML = `<div class="success">✅ Admin privileges set successfully!</div>`;
+                
+                // Auto-proceed to verification
+                setTimeout(() => {
+                    verifyAdminAccess();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error setting admin privileges:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function verifyAdminAccess() {
+            const resultDiv = document.getElementById('step3Result');
+            resultDiv.innerHTML = "Verifying admin access...";
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error("No user logged in.");
+                }
+
+                // Check admin status in database
+                const snapshot = await database.ref(`users/${user.uid}/isAdmin`).once('value');
+                const isAdmin = snapshot.val();
+
+                if (isAdmin === true) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Admin access verified successfully!<br>
+                            <strong>Email:</strong> ${user.email}<br>
+                            <strong>User ID:</strong> ${user.uid}<br>
+                            <strong>Admin Status:</strong> ✓ Confirmed<br><br>
+                            <button onclick="window.open('../index.html', '_blank')">🚀 Go to Main Website</button>
+                        </div>
+                    `;
+                } else {
+                    throw new Error("Admin status not set properly in database.");
+                }
+
+            } catch (error) {
+                console.error('Error verifying admin access:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-start setup when page loads
+        window.addEventListener('load', () => {
+            console.log('Admin Setup Tool Loaded');
+            console.log('Ready to create admin account for:', ADMIN_EMAIL);
+        });
+    </script>
+</body>
+</html>
